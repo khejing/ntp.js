@@ -1,0 +1,19 @@
+{
+  "name": "ntp.js",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khejing/ntp.js.git"
+  },
+  "author": "Will Lee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/khejing/ntp.js/issues"
+  },
+  "homepage": "https://github.com/khejing/ntp.js"
+}
