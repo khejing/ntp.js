@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/khejing/ntp.js/issues"
   },
-  "homepage": "https://github.com/khejing/ntp.js"
+  "homepage": "https://github.com/khejing/ntp.js",
+  "dependencies": {
+    "moment": "^2.10.3"
+  }
 }
