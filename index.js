@@ -27,9 +27,8 @@ function getNTPOffset(MqttClient, topic){
             if (msg.timesync === "Response") {
                 // NOTE: t2 isn't entirely accurate because we're assuming that the server spends 0ms on processing.
                 // (t1 isn't accurate either, as there's bound to have been some processing before that, but we can't avoid that)
-                let serverTime = msg.serverTime+8*60*60*1000;// UTC+08:00, Beijing Time
-                var t1 = serverTime,
-                    t2 = serverTime,
+                var t1 = msg.serverTime,
+                    t2 = msg.serverTime,
                     t3 = Date.now();
 
                 // we can get a more accurate version of t2 if the server's response
