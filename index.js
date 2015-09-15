@@ -46,7 +46,7 @@ function getNTPOffset(MqttClient, topic){
                 var c = ntp(t0, t1, t2, t3);
 
                 // log the calculated value rtt and time driff so we can manually verify if they make sense
-                console.log("NTP delay:", c.roundtripdelay, "NTP offset:", c.offset, "corrected:", Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
+                console.log("NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
                 resolve(c.offset);
             }
         });
