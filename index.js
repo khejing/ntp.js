@@ -5,6 +5,8 @@ import Moment from 'moment';
 
 //This file comes from: http://stackoverflow.com/questions/1638337/the-best-way-to-synchronize-client-side-javascript-clock-with-server-date#answer-22969338
 
+let c = null;
+
 // the NTP algorithm
 // t0 is the client's timestamp of the request packet transmission,
 // t1 is the server's timestamp of the request packet reception,
@@ -19,15 +21,20 @@ function ntp(t0, t1, t2, t3) {
 
 function getNTPOffset(MqttClient, topic){
     return new Promise(function(resolve, reject){
+        if(c){
+            console.log("have already got NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3+c.offset).format("YYYY-MM-DD HH:mm:ss.SSS")+", so resolve directly");
+            resolve(c.offset);
+        }
+
         // calculate the difference in seconds between the client and server clocks, use
         // the NTP algorithm, see: http://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
-        var t0 = Date.now();
+        let t0 = Date.now();
         MqttClient.publish("timesync", {timesync: "Request"});
         MqttClient.onMessage(topic, "timesync", function (msg) {
             if (msg.timesync === "Response") {
                 // NOTE: t2 isn't entirely accurate because we're assuming that the server spends 0ms on processing.
                 // (t1 isn't accurate either, as there's bound to have been some processing before that, but we can't avoid that)
-                var t1 = msg.serverTime,
+                let t1 = msg.serverTime,
                     t2 = msg.serverTime,
                     t3 = Date.now();
 
@@ -43,7 +50,7 @@ function getNTPOffset(MqttClient, topic){
                 // if (date) {
                 //     t2 = (new Date(date)).valueOf();
                 // }
-                var c = ntp(t0, t1, t2, t3);
+                c = ntp(t0, t1, t2, t3);
 
                 // log the calculated value rtt and time driff so we can manually verify if they make sense
                 console.log("NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
