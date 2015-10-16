@@ -22,7 +22,7 @@ function ntp(t0, t1, t2, t3) {
 function getNTPOffset(MqttClient, topic){
     return new Promise(function(resolve, reject){
         if(c){
-            console.log("have already got NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3+c.offset).format("YYYY-MM-DD HH:mm:ss.SSS")+", so resolve directly");
+            console.log("have already got NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", so resolve directly");
             resolve(c.offset);
         }
 
