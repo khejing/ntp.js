@@ -24,6 +24,7 @@ function getNTPOffset(MqttClient, topic){
         if(c){
             console.log("have already got NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", so resolve directly");
             resolve(c.offset);
+            return;
         }
 
         // calculate the difference in seconds between the client and server clocks, use
