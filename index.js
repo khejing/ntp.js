@@ -6,6 +6,7 @@ import Moment from 'moment';
 //This file comes from: http://stackoverflow.com/questions/1638337/the-best-way-to-synchronize-client-side-javascript-clock-with-server-date#answer-22969338
 
 let c = null;
+let t0 = 0;
 
 // the NTP algorithm
 // t0 is the client's timestamp of the request packet transmission,
@@ -57,7 +58,7 @@ function getNTPOffset(MqttClient, topic){
 
         // calculate the difference in seconds between the client and server clocks, use
         // the NTP algorithm, see: http://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
-        let t0 = Date.now();
+        t0 = Date.now();
         MqttClient.publish("timesync", {timesync: "Request"});
         MqttClient.onMessage(topic, "timesync", onMessage);
     });
