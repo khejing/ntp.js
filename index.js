@@ -19,6 +19,35 @@ function ntp(t0, t1, t2, t3) {
     };
 }
 
+function onMessage(msg) {
+    if (msg.timesync === "Response") {
+        // NOTE: t2 isn't entirely accurate because we're assuming that the server spends 0ms on processing.
+        // (t1 isn't accurate either, as there's bound to have been some processing before that, but we can't avoid that)
+        let t1 = msg.serverTime,
+            t2 = msg.serverTime,
+            t3 = Date.now();
+
+        // we can get a more accurate version of t2 if the server's response
+        // contains a Date header, which it generally will.
+        // EDIT: as @Ariel rightly notes, the HTTP Date header only has
+        // second resolution, thus using it will actually make the calculated
+        // result worse. For higher accuracy, one would thus have to
+        // return an extra header with a higher-resolution time. This
+        // could be done with nginx for example:
+        // http://nginx.org/en/docs/http/ngx_http_core_module.html
+        // var date = resp.getResponseHeader("Date");
+        // if (date) {
+        //     t2 = (new Date(date)).valueOf();
+        // }
+        c = ntp(t0, t1, t2, t3);
+
+        // log the calculated value rtt and time driff so we can manually verify if they make sense
+        console.log("NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
+        MqttClient.offMessage(topic, "timesync", onMessage);
+        resolve(c.offset);
+    }
+}
+
 function getNTPOffset(MqttClient, topic){
     return new Promise(function(resolve, reject){
         if(c){
@@ -30,33 +59,7 @@ function getNTPOffset(MqttClient, topic){
         // the NTP algorithm, see: http://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
         let t0 = Date.now();
         MqttClient.publish("timesync", {timesync: "Request"});
-        MqttClient.onMessage(topic, "timesync", function (msg) {
-            if (msg.timesync === "Response") {
-                // NOTE: t2 isn't entirely accurate because we're assuming that the server spends 0ms on processing.
-                // (t1 isn't accurate either, as there's bound to have been some processing before that, but we can't avoid that)
-                let t1 = msg.serverTime,
-                    t2 = msg.serverTime,
-                    t3 = Date.now();
-
-                // we can get a more accurate version of t2 if the server's response
-                // contains a Date header, which it generally will.
-                // EDIT: as @Ariel rightly notes, the HTTP Date header only has
-                // second resolution, thus using it will actually make the calculated
-                // result worse. For higher accuracy, one would thus have to
-                // return an extra header with a higher-resolution time. This
-                // could be done with nginx for example:
-                // http://nginx.org/en/docs/http/ngx_http_core_module.html
-                // var date = resp.getResponseHeader("Date");
-                // if (date) {
-                //     t2 = (new Date(date)).valueOf();
-                // }
-                c = ntp(t0, t1, t2, t3);
-
-                // log the calculated value rtt and time driff so we can manually verify if they make sense
-                console.log("NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
-                resolve(c.offset);
-            }
-        });
+        MqttClient.onMessage(topic, "timesync", onMessage);
     });
 }
 
