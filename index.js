@@ -6,6 +6,7 @@ import Moment from 'moment';
 //This file comes from: http://stackoverflow.com/questions/1638337/the-best-way-to-synchronize-client-side-javascript-clock-with-server-date#answer-22969338
 
 let MqttClientInThisFile = null;
+let topicInThisFile;
 let c = null;
 let t0 = 0;
 
@@ -45,13 +46,14 @@ function onMessage(msg) {
 
         // log the calculated value rtt and time driff so we can manually verify if they make sense
         console.log("NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
-        MqttClientInThisFile.offMessage(topic, "timesync", onMessage);
+        MqttClientInThisFile.offMessage(topicInThisFile, "timesync", onMessage);
         resolve(c.offset);
     }
 }
 
 function getNTPOffset(MqttClient, topic){
     MqttClientInThisFile = MqttClient;
+    topicInThisFile = topic;
     return new Promise(function(resolve, reject){
         if(c){
             console.log("have already got NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", so resolve directly");
