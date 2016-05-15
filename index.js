@@ -27,6 +27,7 @@ function getNTPOffset(MQClient, topic){
             return;
         }
 
+        var timer;
         // calculate the difference in seconds between the client and server clocks, use
         // the NTP algorithm, see: http://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_synchronization_algorithm
         let t0 = Date.now();
@@ -56,10 +57,14 @@ function getNTPOffset(MQClient, topic){
                 // log the calculated value rtt and time driff so we can manually verify if they make sense
                 console.log("NTP delay: "+c.roundtripdelay+", NTP offset: "+c.offset+", corrected: "+Moment(t3 + c.offset).format("YYYY-MM-DD HH:mm:ss.SSS"));
                 MQClient.offMessage(topic, "timesync", onMessage);
+                clearTimeout(timer);
                 resolve(c.offset);
             }
         }
         MQClient.onMessage(topic, "timesync", onMessage);
+        timer = setTimeout(function(){
+            reject(new Error('time sync timeout'));
+        }, 5000);
     });
 }
 
