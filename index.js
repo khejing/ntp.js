@@ -64,7 +64,7 @@ function getNTPOffset(MQClient, topic){
         MQClient.onMessage(topic, "timesync", onMessage);
         timer = setTimeout(function(){
             reject(new Error('time sync timeout'));
-        }, 5000);
+        }, 8000);
     });
 }
 
